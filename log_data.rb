@@ -1,4 +1,40 @@
 require 'set'
+require 'sqlite3'
+
+def setup_database(db_path)
+  db = SQLite3::Database.new(db_path)
+  db.execute <<-SQL
+    CREATE TABLE IF NOT EXISTS large_array (
+      id INTEGER PRIMARY KEY,
+      value INTEGER
+    );
+  SQL
+  db
+end
+
+def save_large_array_to_db(db, array)
+  db.transaction do
+    array.each do |value|
+      db.execute("INSERT INTO large_array (value) VALUES (?)", value)
+    end
+  end
+end
+
+def load_large_array_from_db(db)
+  db.execute("SELECT value FROM large_array").flatten
+end
+
+db_path = 'large_array.db'
+large_array = (1..10_000_000).to_a
+
+db = setup_database(db_path)
+
+
+save_large_array_to_db(db, large_array)
+
+loaded_array = load_large_array_from_db(db)
+puts loaded_array.size
+
 
 filter = ->(predicate) do
   ->(collection) { collection.select(&predicate) }
