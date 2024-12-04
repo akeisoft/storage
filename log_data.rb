@@ -40,9 +40,6 @@ filter = ->(predicate) do
   ->(collection) { collection.select(&predicate) }
 end
 
-map = ->(transform) do
-  ->(collection) { collection.map(&transform) }
-end
 
 reduce = ->(operation, initial) do
   ->(collection) { collection.reduce(initial, &operation) }
